@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +32,10 @@ public class Student {
 
     @Column(name = "enrolment", unique=true)
     private String enrolment;
+
+    @ManyToOne
+    @JoinColumn(name = "klass_fk")
+    private Class klass;
 
     public Student(String name, String email, String enrolment) {
         this.name = name;
