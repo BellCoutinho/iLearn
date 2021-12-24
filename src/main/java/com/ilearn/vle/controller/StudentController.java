@@ -62,19 +62,18 @@ public class StudentController {
     }
 
     @PatchMapping("/{studentId}/enrollStudent/{classId}")
-    public Student updateStudentEnrollment(@PathVariable("classId") Long classId, 
-                                           @PathVariable("studentId") Long studentId,
-                                           @RequestBody Student student) {
+    public String updateStudentEnrollment(@PathVariable("classId") Long classId, 
+                                          @PathVariable("studentId") Long studentId,
+                                          @RequestBody String status) {
         Optional<Student> updatedStudent = this.studentRepository.findById(studentId);
         Optional<Class> classOptional = this.classRepository.findById(classId);
         if (updatedStudent.isEmpty())
-            return null;
+            return "Failure";
         if (classOptional.isEmpty())
-            return null;
+            return "Failure";
 
         updatedStudent.get().setKlass(classOptional.get());
-
-        return this.studentRepository.save(updatedStudent.get());
+        this.studentRepository.save(updatedStudent.get());
+        return status;
     }
-
 }
