@@ -33,7 +33,7 @@ public class Class {
     private String room;
 
     @ManyToOne
-    @JoinColumn(name = "teacher_fk")
+    @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 
     @OneToMany(mappedBy = "klass")

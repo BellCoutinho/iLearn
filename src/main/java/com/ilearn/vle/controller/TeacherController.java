@@ -10,50 +10,62 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.ilearn.vle.domain.Teacher;
-import com.ilearn.vle.repository.TeacherRepository;
+import com.ilearn.vle.domain.Student;
+import com.ilearn.vle.dto.LinkStudentDTO;
+import com.ilearn.vle.service.TeacherService;
+import com.ilearn.vle.service.StudentService;
 
-@RequestMapping("/teachers")
 @RestController
+@RequestMapping("/teachers")
 public class TeacherController {
 
     @Autowired
-    private TeacherRepository teacherRepository;
+    private TeacherService teacherService;
 
+    @Autowired
+    private StudentService studentService;
+    
     @GetMapping()
-    public List<Teacher> getTeachers() {
-        return this.teacherRepository.findAll();
+    public ResponseEntity<List<Teacher>> getTeachers() {
+        final var teachers = this.teacherService.takeAllTeachers();
+	return ResponseEntity.status(HttpStatus.FOUND).body(teachers);
     }
 
     @GetMapping("/{id}")
-    public Optional<Teacher> getTeacherById(@PathVariable Long id) {
-        return this.teacherRepository.findById(id);
+    public ResponseEntity<Teacher> getTeacherById(@PathVariable Long id) {
+	final var teacher =  this.teacherService.takeTeacher(id);
+        return ResponseEntity.status(HttpStatus.FOUND).body(teacher);
     }
 
     @PostMapping
-    public Teacher createTeacher(@RequestBody Teacher teacher) {
-        return this.teacherRepository.save(teacher);
+    public ResponseEntity<Teacher> createTeacher(@RequestBody Teacher teacher) {
+        final var createdTeacher = this.teacherService.registerTeacher(teacher);
+	return ResponseEntity.status(HttpStatus.CREATED).body(createdTeacher);
     }
 
     @PutMapping("/{id}")
-    public Teacher updateTeacher(@PathVariable("id") Long id, @RequestBody Teacher teacher) {
-        Optional<Teacher> updatedTeacher = this.teacherRepository.findById(id);
-        if (updatedTeacher.isPresent()) {
-            updatedTeacher.get().setName(teacher.getName());
-            updatedTeacher.get().setEducation(teacher.getEducation());
-            updatedTeacher.get().setEnrolment(teacher.getEnrolment());
-            updatedTeacher.get().setEmail(teacher.getEmail());
-            return this.teacherRepository.save(updatedTeacher.get());
-        }
-        return this.teacherRepository.save(teacher);
+    public ResponseEntity<Teacher> updateTeacher(@PathVariable("id") Long id, @RequestBody Teacher teacher) {
+        final var updatedTeacher = this.teacherService.updateTeacher(id, teacher);
+	return ResponseEntity.status(HttpStatus.OK).body(updatedTeacher);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTeatcher(@PathVariable("id") Long id) {
-        this.teacherRepository.delete(this.teacherRepository.findById(id).get());
+    public ResponseEntity<?> deleteTeatcher(@PathVariable("id") Long id) {
+        this.teacherService.deleteTeatcher(id);
+	return ResponseEntity.status(HttpStatus.OK).body("resource deleted successfully");
     }
 
+    @PatchMapping("/project")
+    public ResponseEntity<String> linkStudent(@RequestBody LinkStudentDTO linkStudent) {
+	final var linkedStudent = this.teacherService.linkStudentToProject(linkStudent);
+	return ResponseEntity.status(HttpStatus.OK).body("resource updated successfully");
+    }
 }
+

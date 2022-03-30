@@ -8,14 +8,20 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.ManyToOne;
 import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-@Getter
-@Setter
+import com.ilearn.vle.domain.Project;
+import com.ilearn.vle.domain.Role;
+
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "Student")
 public class Student {
@@ -37,6 +43,14 @@ public class Student {
     @JoinColumn(name = "klass_fk")
     private Class klass;
 
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id")
+    private Role projectRole;
+    
     public Student(String name, String email, String enrolment) {
         this.name = name;
         this.email = email;

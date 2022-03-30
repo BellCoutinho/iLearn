@@ -1,7 +1,6 @@
 package com.ilearn.vle.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,67 +12,46 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.ilearn.vle.domain.Student;
-import com.ilearn.vle.domain.Class;
-import com.ilearn.vle.repository.StudentRepository;
-import com.ilearn.vle.repository.ClassRepository;
+import com.ilearn.vle.service.StudentService;
 
-@RequestMapping("/students")
 @RestController
+@RequestMapping("/students")
 public class StudentController {
     
     @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private ClassRepository classRepository;
+    private StudentService studentService;
 
     @GetMapping
-    public List<Student> getStudents() {
-        return this.studentRepository.findAll();
+    public ResponseEntity<List<Student>> getStudents() {
+        final var students = this.studentService.takeAllStudents();
+	return ResponseEntity.status(HttpStatus.FOUND).body(students);
     }
 
     @GetMapping("/{id}")
-    public Optional<Student> getStudentById(@PathVariable Long id) {
-        return this.studentRepository.findById(id);
+    public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
+        final var student = this.studentService.takeStudent(id);
+	return ResponseEntity.status(HttpStatus.FOUND).body(student);
     }
 
     @PostMapping
-    public Student createStudent(@RequestBody Student student) {
-        return this.studentRepository.save(student);
+    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+	final var createdStudent = this.studentService.registerStudent(student);
+	return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
     }
     
     @PutMapping("/{id}")
-    public Student updateStudent(@PathVariable("id") Long id, @RequestBody Student student) {
-        Optional<Student> updatedStudent = this.studentRepository.findById(id);
-        if (updatedStudent.isPresent()) {
-            updatedStudent.get().setName(student.getName());
-            updatedStudent.get().setEnrolment(student.getEnrolment());
-            updatedStudent.get().setEmail(student.getEmail());
-            return this.studentRepository.save(updatedStudent.get());
-        }
-        return this.studentRepository.save(student);
+    public ResponseEntity<Student> updateStudent(@PathVariable("id") Long id, @RequestBody Student student) {
+        final var updatedStudent = this.studentService.updateStudent(id, student);
+	return ResponseEntity.status(HttpStatus.OK).body(updatedStudent);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteStudent(@PathVariable("id") Long id) {
-        this.studentRepository.delete(this.studentRepository.findById(id).get());
-    }
-
-    @PatchMapping("/{studentId}/enrollStudent/{classId}")
-    public String updateStudentEnrollment(@PathVariable("classId") Long classId, 
-                                          @PathVariable("studentId") Long studentId,
-                                          @RequestBody String status) {
-        Optional<Student> updatedStudent = this.studentRepository.findById(studentId);
-        Optional<Class> classOptional = this.classRepository.findById(classId);
-        if (updatedStudent.isEmpty())
-            return "Failure";
-        if (classOptional.isEmpty())
-            return "Failure";
-
-        updatedStudent.get().setKlass(classOptional.get());
-        this.studentRepository.save(updatedStudent.get());
-        return status;
+    public ResponseEntity<?> deleteStudent(@PathVariable("id") Long id) {
+        this.studentService.deleteStudent(id);
+	return ResponseEntity.status(HttpStatus.OK).body("resource deleted successfully");
     }
 }

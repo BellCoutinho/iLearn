@@ -5,9 +5,9 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ilearn.vle.domain.Class;
+import com.ilearn.vle.domain.Project;
 
 @Repository
-public interface ClassRepository extends JpaRepository<Class, Long> {
-    Optional<Class> findByDiscipline(String discipline);
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+    Optional<Project> findByName(String name);
 }
